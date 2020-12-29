@@ -1,4 +1,5 @@
-const { program } = require('commander');
+#!/usr/bin/env node
+const program = require('commander');
 const download = require('download-git-repo');
 const inquirer = require('inquirer');
 const ora = require('ora');
