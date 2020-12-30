@@ -5,42 +5,138 @@ const inquirer = require('inquirer');
 const ora = require('ora');
 const chalk = require('chalk');
 const symbols = require('log-symbols');
+const handlebars = require('handlebars');
 const fs = require('fs');
+const fse = require('fs-extra')
 const package = require('./package.json')
+
+const ipromptConfig = [
+  {
+    type: 'input',
+    name: 'description',
+    message: '请输入项目描述'
+  },
+  {
+    type: 'input',
+    name: 'author',
+    message: '请输入作者名称'
+  },
+  {
+    type: 'list',
+    name: 'template',
+    message: '请选择模版',
+    choices: [
+      {
+        name: 'Vue',
+        value: 'vue'
+      },
+      // {
+      //   name: 'React',
+      //   value: 'react'
+      // }
+    ]
+  }
+]
+let ipromptConfigTemplate = []
+let meta = {}
+// 下线 Template Repo
+const downloadRepo = (target) => {
+  return new Promise((resolve, reject) => {
+    download('https://github.com:xiaotiandada/cli-ant#master', target, { clone: true }, (err) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(target)
+      }
+    })
+  })
+}
+
+// 合并配置文件
+const mergenPackage = (name) => {
+  try {
+    // console.log('meta', meta)
+    const fileName = `./${name}/package.json`;
+    const content = fs.readFileSync(fileName).toString();
+    const temp = handlebars.compile(content)(meta)
+    fs.writeFileSync(fileName, temp);
+    // console.log('temp', temp)
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+// 处理文件夹
+const handleFolder = async (target, temp ,name) => {
+  try {
+    await fse.copySync(`${target}/template/${temp}`, `./${name}`)
+    await fse.removeSync(target)
+    await mergenPackage(name)
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+// 选择模版
+const chooseTemplate = (name) => {
+  inquirer
+  .prompt(ipromptConfigTemplate)
+  .then(async (ct) => {
+    // console.log('ct', ct);
+    const spinner = ora('正在下载模板...');
+    spinner.start();
+    let target = '.download-temp'
+    try {
+      await downloadRepo(target)
+      await handleFolder(target, ct.template, name)
+      spinner.succeed();
+      console.log(symbols.success, chalk.green('项目创建成功'));
+    } catch (err) {
+      spinner.fail();
+      console.log(symbols.error, chalk.red(`项目创建失败 ${err}`));
+    }
+  })
+  .catch(err => console.log(err))
+}
 
 program
   .version(package.version, '-v, --version')
   .command('init <name>')
   .action((name) => {
-    if(fs.existsSync(name)) {
+    if (fs.existsSync(name)) {
       console.log(symbols.error, chalk.red('项目已存在'));
       return
     }
-    inquirer.prompt([
-      {
-        type: 'input',
-        name: 'description',
-        message: '请输入项目描述'
-      },
-      {
-        type: 'input',
-        name: 'author',
-        message: '请输入作者名称'
-      }
-    ]).then((answers) => {
-      const spinner = ora('正在下载模板...');
-      spinner.start();
-      console.log(answers.author);
-      console.log('name', name);
-      download('https://github.com:eggjs/egg-init#master', name, { clone: true }, (err) => {
-        if (err) {
-          spinner.fail();
-          console.log(symbols.error, chalk.red(`项目创建失败 ${err}`));
+
+    inquirer
+      .prompt(ipromptConfig)
+      .then((c) => {
+        if (c.template === 'vue') {
+          ipromptConfigTemplate = [
+            {
+              type: 'list',
+              name: 'template',
+              message: '请选择模版',
+              choices: [
+                {
+                  name: 'Vue2',
+                  value: 'vue2'
+                }
+              ]
+            }
+          ]
+          // write meta
+          meta = Object.assign(meta, {
+            name: name,
+            description: c.description,
+            author: c.author,
+          })
+          chooseTemplate(name)
         } else {
-          spinner.succeed();
-          console.log(symbols.success, chalk.green('项目创建成功'));
+          return
         }
       })
-    })
+      .catch(err => console.log(err))
   });
+
 program.parse(process.argv);
