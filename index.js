@@ -30,10 +30,10 @@ const ipromptConfig = [
         name: 'Vue',
         value: 'vue'
       },
-      // {
-      //   name: 'React',
-      //   value: 'react'
-      // }
+      {
+        name: 'React',
+        value: 'create-temp'
+      }
     ]
   }
 ]
@@ -83,20 +83,25 @@ const chooseTemplate = (name) => {
   .prompt(ipromptConfigTemplate)
   .then(async (ct) => {
     // console.log('ct', ct);
-    const spinner = ora('正在下载模板...');
-    spinner.start();
-    let target = '.download-temp'
-    try {
-      await downloadRepo(target)
-      await handleFolder(target, ct.template, name)
-      spinner.succeed();
-      console.log(symbols.success, chalk.green('项目创建成功'));
-    } catch (err) {
-      spinner.fail();
-      console.log(symbols.error, chalk.red(`项目创建失败 ${err}`));
-    }
+    await pullRepo(ct.template, name)
   })
   .catch(err => console.log(err))
+}
+
+// pull repo
+const pullRepo = async (temp, name) => {
+  const spinner = ora('正在下载模板...');
+  spinner.start();
+  let target = '.download-temp'
+  try {
+    await downloadRepo(target)
+    await handleFolder(target, temp, name)
+    spinner.succeed();
+    console.log(symbols.success, chalk.green('项目创建成功'));
+  } catch (err) {
+    spinner.fail();
+    console.log(symbols.error, chalk.red(`项目创建失败 ${err}`));
+  }
 }
 
 program
@@ -111,6 +116,13 @@ program
     inquirer
       .prompt(ipromptConfig)
       .then((c) => {
+        // write meta
+        meta = Object.assign(meta, {
+          name: name,
+          description: c.description,
+          author: c.author,
+        })
+
         if (c.template === 'vue') {
           ipromptConfigTemplate = [
             {
@@ -125,13 +137,9 @@ program
               ]
             }
           ]
-          // write meta
-          meta = Object.assign(meta, {
-            name: name,
-            description: c.description,
-            author: c.author,
-          })
           chooseTemplate(name)
+        } else if (c.template === 'create-temp' ) {
+          pullRepo(c.template, name)
         } else {
           return
         }
