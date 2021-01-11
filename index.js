@@ -42,7 +42,7 @@ let meta = {}
 // 下线 Template Repo
 const downloadRepo = (target) => {
   return new Promise((resolve, reject) => {
-    download('https://github.com:xiaotiandada/cli-ant#temp', target, { clone: true }, (err) => {
+    download('https://github.com:xiaotiandada/cli-ant-temp#master', target, { clone: true }, (err) => {
       if (err) {
         reject(err)
       } else {
