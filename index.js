@@ -42,7 +42,7 @@ let meta = {}
 // 下线 Template Repo
 const downloadRepo = (target) => {
   return new Promise((resolve, reject) => {
-    download('https://github.com:xiaotiandada/cli-ant#master', target, { clone: true }, (err) => {
+    download('https://github.com:xiaotiandada/cli-ant#temp', target, { clone: true }, (err) => {
       if (err) {
         reject(err)
       } else {
@@ -133,6 +133,10 @@ program
                 {
                   name: 'Vue2',
                   value: 'vue2'
+                },
+                {
+                  name: 'Vue3',
+                  value: 'vue3'
                 }
               ]
             }
