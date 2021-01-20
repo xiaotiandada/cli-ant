@@ -32,7 +32,7 @@ const ipromptConfig = [
       },
       {
         name: 'React',
-        value: 'create-temp'
+        value: 'react-temp'
       }
     ]
   }
