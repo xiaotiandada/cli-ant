@@ -137,6 +137,10 @@ program
                 {
                   name: 'Vue3',
                   value: 'vue3'
+                },
+                {
+                  name: 'Nuxt',
+                  value: 'nuxt-temp'
                 }
               ]
             }
