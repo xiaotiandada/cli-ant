@@ -10,6 +10,7 @@ const fs = require('fs');
 const fse = require('fs-extra')
 const package = require('./package.json')
 
+// 外层Select
 const ipromptConfig = [
   {
     type: 'input',
@@ -32,12 +33,68 @@ const ipromptConfig = [
       },
       {
         name: 'React',
-        value: 'react-temp'
+        value: 'react'
+      },
+      {
+        name: 'Node',
+        value: 'node'
       }
     ]
   }
 ]
 let ipromptConfigTemplate = []
+const VUE_LIST = [
+  {
+    type: 'list',
+    name: 'template',
+    message: '请选择模版',
+    choices: [
+      {
+        name: 'Vue2',
+        value: 'vue2'
+      },
+      {
+        name: 'Vue3',
+        value: 'vue3'
+      },
+      {
+        name: 'Nuxt',
+        value: 'nuxt-temp'
+      }
+    ]
+  }
+]
+const REACT_LIST = [
+  {
+    type: 'list',
+    name: 'template',
+    message: '请选择模版',
+    choices: [
+      {
+        name: 'React',
+        value: 'react-temp'
+      },
+      {
+        name: 'Next',
+        value: 'next-temp'
+      },
+    ]
+  }
+]
+const NODE_LIST =  [
+  {
+    type: 'list',
+    name: 'template',
+    message: '请选择模版',
+    choices: [
+      {
+        name: 'Egg',
+        value: 'egg-temp'
+      }
+    ]
+  }
+]
+
 let meta = {}
 // 下线 Template Repo
 const downloadRepo = (target) => {
@@ -69,7 +126,7 @@ const mergenPackage = (name) => {
 // 处理文件夹
 const handleFolder = async (target, temp ,name) => {
   try {
-    await fse.copySync(`${target}/template/${temp}`, `./${name}`)
+    await fse.copySync(`${target}/${temp}`, `./${name}`)
     await fse.removeSync(target)
     await mergenPackage(name)
   } catch (err) {
@@ -124,30 +181,14 @@ program
         })
 
         if (c.template === 'vue') {
-          ipromptConfigTemplate = [
-            {
-              type: 'list',
-              name: 'template',
-              message: '请选择模版',
-              choices: [
-                {
-                  name: 'Vue2',
-                  value: 'vue2'
-                },
-                {
-                  name: 'Vue3',
-                  value: 'vue3'
-                },
-                {
-                  name: 'Nuxt',
-                  value: 'nuxt-temp'
-                }
-              ]
-            }
-          ]
+          ipromptConfigTemplate = VUE_LIST
           chooseTemplate(name)
-        } else if (c.template === 'create-temp' ) {
-          pullRepo(c.template, name)
+        } else if (c.template === 'react' ) {
+          ipromptConfigTemplate = REACT_LIST
+          chooseTemplate(name)
+        } else if (c.template === 'node') {
+          ipromptConfigTemplate = NODE_LIST
+          chooseTemplate(name)
         } else {
           return
         }
