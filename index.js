@@ -78,6 +78,14 @@ const REACT_LIST = [
         name: 'Next',
         value: 'next-temp'
       },
+      {
+        name: 'React Chain',
+        value: 'react-chain-temp'
+      },
+      {
+        name: 'Next Chain',
+        value: 'next-chain-temp'
+      },
     ]
   }
 ]
